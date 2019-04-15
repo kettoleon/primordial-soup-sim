@@ -4,3 +4,5 @@
 target/**
 
 prev.genepool
+
+.attach_pid*
