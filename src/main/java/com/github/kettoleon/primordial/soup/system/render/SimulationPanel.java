@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
 
 public class SimulationPanel extends JPanel implements MouseMotionListener, MouseListener {
 
@@ -109,11 +110,22 @@ public class SimulationPanel extends JPanel implements MouseMotionListener, Mous
         g.drawLine(screenX, screenY, lookingAtX, lookingAtY);
 
 //        printNoseReach(g, wo);
+        printTail(g, wo);
 
     }
 
+    private void printTail(Graphics2D g, Creature wo) {
+        LinkedList<Position> tail = wo.getTrail();
+        for (int i = 0; i < tail.size() - 1; i++) {
+            Position p1 = tail.get(i);
+            Position p2 = tail.get(i + 1);
+            g.setColor(new Color(1, 0, 0, 0.8f - i * (0.75f / tail.size())));
+            g.drawLine((int) (offsetX + p1.getX()), (int) (offsetY + p1.getY()), (int) (offsetX + p2.getX()), (int) (offsetY + p2.getY()));
+        }
+    }
+
     private void printNoseReach(Graphics2D g, Creature wo) {
-        g.setColor(new Color(0,0xff,0,0x22));
+        g.setColor(new Color(0, 0xff, 0, 0x22));
         int[] xPoints = new int[]{
                 (int) (offsetX + wo.getPosition().getX()),
                 (int) (offsetX + wo.getSmellTriangle()[1].getX()),
@@ -126,7 +138,7 @@ public class SimulationPanel extends JPanel implements MouseMotionListener, Mous
         };
         g.fillPolygon(xPoints, yPoints, 3);
 
-        g.setColor(new Color(0,0,0xff,0x22));
+        g.setColor(new Color(0, 0, 0xff, 0x22));
         xPoints = new int[]{
                 (int) (offsetX + wo.getPosition().getX()),
                 (int) (offsetX + wo.getSmellTriangle()[1].getX()),

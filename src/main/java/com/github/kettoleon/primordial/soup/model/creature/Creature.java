@@ -6,6 +6,7 @@ import com.github.kettoleon.primordial.soup.model.WorldObject;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import com.github.kettoleon.primordial.soup.model.genetics.Dna;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.kettoleon.primordial.soup.util.MathUtils.norm;
@@ -35,6 +36,7 @@ public class Creature extends WorldObject {
     private Position[] smellTriangle;
     private int eaten;
     private Position startingPos;
+    private LinkedList<Position> trail = new LinkedList<>();
 
     //TODO Senses to read from world -> later stage
 
@@ -82,18 +84,26 @@ public class Creature extends WorldObject {
 
         moveInDirection(outputs[O_SPEED], outputs[O_ROTATION]);
         smellTriangle = null;
+        if(trail.size() > 50) {
+            trail.removeLast();
+        }
+        trail.addFirst(getPosition().copy());
 
         if (id % 10 == 0) { //Dying if hunger reaches 1 //TODO change to energy reserves?
-            if(startingPos == null){
+            if (startingPos == null) {
                 startingPos = getPosition().copy();
             }
-            if(inputs[I_HUNGER] > 1.0 || invalid(inputs, outputs) || hasNotMovedAtAll(id)){
+            if (inputs[I_HUNGER] > 1.0 || invalid(inputs, outputs) || hasNotMovedAtAll(id)) {
 
                 dead = true;
                 deadAtTick = id;
             }
         }
 
+    }
+
+    public LinkedList<Position> getTrail() {
+        return trail;
     }
 
     private boolean hasNotMovedAtAll(long id) {
