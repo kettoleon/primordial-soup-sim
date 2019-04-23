@@ -151,13 +151,18 @@ public class CreatureSystem implements SimulationSystem {
         Supplier<Integer> bp = cuadraticProbability(2);
         for (int i = 0; i < INITIAL_POPULATION; i++) {
 
-            float[][] parents = new float[2][];
-            parents[0] = fittestGenePool.get(fgpp.get()).getDna().getGenes();
-            parents[1] = fittestGenePool.get(fgpp.get()).getDna().getGenes();
-            float[] offspring = DnaUtils.mutate(DnaUtils.breed(bp, parents), RADIATION);
+//            float[][] parents = new float[2][];
+//            parents[0] = fittestGenePool.get(fgpp.get()).getDna().getGenes();
+//            parents[1] = fittestGenePool.get(fgpp.get()).getDna().getGenes();
+//            float[] offspring = DnaUtils.mutateWithoutGrowth(DnaUtils.breed(bp, parents), RADIATION);
+            float[] offspring = DnaUtils.mutateWithoutGrowth(fittestGenePool.get(fgpp.get()).getDna().getGenes(), RADIATION);
 
             addNewCreature(id, world, new Dna(offspring));
 
+        }
+        for (Creature c : fittestGenePool) {
+            addNewCreature(id, world, c.getDna());
+            addNewCreature(id, world, new Dna(INITIAL_GENES));
         }
     }
 

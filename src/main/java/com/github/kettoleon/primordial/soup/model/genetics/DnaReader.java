@@ -1,9 +1,11 @@
 package com.github.kettoleon.primordial.soup.model.genetics;
 
 import com.github.kettoleon.primordial.soup.util.MathUtils;
+import com.google.common.collect.Iterators;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 public class DnaReader {
@@ -45,5 +47,13 @@ public class DnaReader {
 
     public <T> T pickFromList(T[] values) {
         return values[nextInt(0, values.length)];
+    }
+
+    public int remainingGenes() {
+        return genes.length - pos;
+    }
+
+    public <T> T pickFromList(Set<T> list) {
+        return Iterators.get(list.iterator(), nextInt(0, list.size()));
     }
 }

@@ -43,32 +43,59 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
     private BrainAlgorithm buildBrainAlgorithm(DnaReader dna) {
 
         List<Instruction> instructions = new ArrayList<>();
+        Set<String> usedMemPositions = new HashSet<>();
+
+        for (int i = 0; i < inSize; i++) {
+            Optional<String> dest = dna.next(this::pickMemDest);
+            Optional<Operation> op = dna.next(this::pickOp);
+            String op1 = "i[" + i + "]";
+            String op2 = dna.next(DnaReader::nextFloat).map(f -> f + "f").orElse("0f");
+            if (dest.isPresent() && op.isPresent()) {
+                usedMemPositions.add(dest.get());
+                instructions.add(new Instruction(dest.get(), op.get(), op1, op2));
+            }
+        }
+
+
+        while (dna.remainingGenes() > 6 * outSize) {
+            Optional<String> dest = dna.next(this::pickMemDest);
+            Optional<Operation> op = dna.next(this::pickOp);
+            Optional<String[]> ops = dna.next(d -> pickMemOrLiteral(d, usedMemPositions));
+            if (dest.isPresent() && op.isPresent() && ops.isPresent()) {
+                usedMemPositions.add(dest.get());
+                instructions.add(new Instruction(dest.get(), op.get(), ops.get()));
+            }
+        }
+
 
         for (int i = 0; i < outSize; i++) {
             String dest = "o[" + i + "]";
             Optional<Operation> op = dna.next(this::pickOp);
-            Optional<String[]> ops = dna.next(this::pickOps);
+            Optional<String[]> ops = dna.next(d -> pickMemOrLiteral(d, usedMemPositions));
             if (op.isPresent() && ops.isPresent()) {
                 instructions.add(new Instruction(dest, op.get(), ops.get()));
             }
         }
 
-        while (dna.hasMoreGenes()) {
-            Optional<String> dest = dna.next(this::pickDest);
-            Optional<Operation> op = dna.next(this::pickOp);
-            Optional<String[]> ops = dna.next(this::pickOps);
-            if (dest.isPresent() && op.isPresent() && ops.isPresent()) {
-                instructions.add(new Instruction(dest.get(), op.get(), ops.get()));
-            }
-        }
-
         reduce(instructions);
 
-        Collections.reverse(instructions);
         return compileBrainAlgorithm(instructions);
     }
 
+    private String[] pickMemOrLiteral(DnaReader dna, Set<String> usedMemPositions) {
+
+        Optional<String> op1 = dna.next(d -> this.pickOneOp(d, usedMemPositions));
+        Optional<String> op2 = dna.next(d -> this.pickOneOp(d, usedMemPositions));
+
+        if (op1.isPresent() && op2.isPresent()) {
+            return new String[]{op1.get(), op2.get()};
+        }
+        return null;
+
+    }
+
     private void reduce(List<Instruction> instructions) {
+        Collections.reverse(instructions);
         List<Instruction> toRemove = new ArrayList<>();
         toRemove.addAll(instructions); //All guilty unless proven differently
 
@@ -80,6 +107,7 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
         }
 
         instructions.removeAll(toRemove);
+        Collections.reverse(instructions);
     }
 
     private void saveDependencies(List<Instruction> instructions, List<Instruction> toRemove, Instruction instruction) {
@@ -111,39 +139,21 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
         return instructions.stream().filter(i -> i.getDest().startsWith("o")).collect(toList());
     }
 
-    private String[] pickOps(DnaReader dna) {
-
-        Optional<String> op1 = dna.next(this::pickOneOp);
-        Optional<String> op2 = dna.next(this::pickOneOp);
-
-        if (op1.isPresent() && op2.isPresent()) {
-            return new String[]{op1.get(), op2.get()};
-        }
-        return null;
-    }
 
     private Operation pickOp(DnaReader dna) {
         return dna.pickFromList(Operation.values());
     }
 
-    private String pickDest(DnaReader dna) {
+    private String pickMemDest(DnaReader dna) {
         int pos = dna.nextInt(0, memSize);
         return "m[" + pos + "]";
     }
 
-    private String pickOneOp(DnaReader dna) {
+    private String pickOneOp(DnaReader dna, Set<String> mempos) {
         Optional<Boolean> isPosition = dna.next(DnaReader::nextBoolean);
         if (isPosition.isPresent()) {
             if (isPosition.get()) {
-                Optional<Integer> pos = dna.next(d -> d.nextInt(0, inSize + memSize));
-                return pos.map(p -> {
-                    if (p < inSize) {
-                        return "i[" + p + "]";
-                    } else {
-                        return "m[" + (p - inSize) + "]";
-                    }
-                }).orElse(null);
-
+                return dna.pickFromList(mempos);
             } else {
                 Optional<Float> literal = dna.next(DnaReader::nextFloat);
                 return literal.map(l -> l + "f").orElse(null);

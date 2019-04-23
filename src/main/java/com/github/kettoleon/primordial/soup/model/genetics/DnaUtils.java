@@ -8,6 +8,18 @@ import static org.apache.commons.lang3.RandomUtils.nextFloat;
 
 public class DnaUtils {
 
+    public static float[] mutateWithoutGrowth(final float[] original, float chance) { //TODO in which amount should it mutate? (For now, change the gene entirely)
+
+        float[] mutated = copyOf(original, original.length);
+
+        for (int i = 0; i < mutated.length; i++) {
+            if (nextFloat(0, 1) < chance) {
+                mutated[i] = nextFloat(0, 1);
+            }
+        }
+        return mutated;
+    }
+
     public static float[] mutate(final float[] original, float chance) { //TODO in which amount should it mutate? (For now, change the gene entirely)
 
         float[] mutated = copyOf(original, original.length);

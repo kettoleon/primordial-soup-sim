@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class VegetationSystem implements SimulationSystem {
 
-    private static final int INITIAL_FOOD = 800;
+    private static final int INITIAL_FOOD = 500;
 
     private List<PlantParticle> plantParticles = new ArrayList<>();
 

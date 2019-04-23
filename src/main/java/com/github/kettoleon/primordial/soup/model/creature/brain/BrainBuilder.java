@@ -2,6 +2,7 @@ package com.github.kettoleon.primordial.soup.model.creature.brain;
 
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.AlgorithmicBrainBuilder;
+import com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom.NeuralBrainBuilder;
 import com.github.kettoleon.primordial.soup.model.genetics.DnaReader;
 import com.github.kettoleon.primordial.soup.model.genetics.GeneticBuilder;
 
@@ -27,7 +28,8 @@ public class BrainBuilder implements GeneticBuilder<Brain> {
 
     private List<GeneticBuilder<Brain>> brainTypeBuilders() {
         return Arrays.asList(
-                new AlgorithmicBrainBuilder(creature)
+                new AlgorithmicBrainBuilder(creature)//,
+//                new NeuralBrainBuilder(creature)
         );
     }
 

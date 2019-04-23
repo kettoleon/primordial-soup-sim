@@ -13,6 +13,7 @@ public class MathUtils {
     }
 
     public static float norm(int value, int max) {
-        return clamp(value/max,0,max);
+        if (max == 0) return 0;
+        return clamp(value / max, 0, max);
     }
 }

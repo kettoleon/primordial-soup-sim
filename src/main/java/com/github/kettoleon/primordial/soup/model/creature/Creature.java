@@ -8,8 +8,7 @@ import com.github.kettoleon.primordial.soup.model.genetics.Dna;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.github.kettoleon.primordial.soup.util.MathUtils.norm;
+import java.util.Optional;
 
 public class Creature extends WorldObject {
 
@@ -21,7 +20,8 @@ public class Creature extends WorldObject {
     private static final int I_SMELL_INTENSITY_RIGHT = 5;
     private static final int O_SPEED = 0;
     private static final int O_ROTATION = 1;
-    private static final int SMELL_DISTANCE = 20;
+    private static final int SMELL_DISTANCE = 50;
+    private static final float MAX_SPEED = 10;
 
     private Brain brain;
 
@@ -37,6 +37,7 @@ public class Creature extends WorldObject {
     private int eaten;
     private Position startingPos;
     private LinkedList<Position> trail = new LinkedList<>();
+    private float totalDistanceTravelled;
 
     //TODO Senses to read from world -> later stage
 
@@ -53,8 +54,8 @@ public class Creature extends WorldObject {
 
         List<PlantParticle> closePlants = world.getPlantsAround(this, 50);
 
-        inputs[I_SMELL_INTENSITY_LEFT] = norm((int) closePlants.stream().filter(this::smellLeft).count(), 10);
-        inputs[I_SMELL_INTENSITY_RIGHT] = norm((int) closePlants.stream().filter(this::smellRight).count(), 10);
+        inputs[I_SMELL_INTENSITY_LEFT] = getClosestLeftPlant(closePlants).map(PlantParticle::getPosition).map(p -> p.distanceTo(this.getPosition())).orElse((double) SMELL_DISTANCE).floatValue();
+        inputs[I_SMELL_INTENSITY_RIGHT] = getClosestRightPlant(closePlants).map(PlantParticle::getPosition).map(p -> p.distanceTo(this.getPosition())).orElse((double) SMELL_DISTANCE).floatValue();
 
         closePlants.stream().filter(this::notEatenAndInReachDistance).findFirst().ifPresent(wo -> {
             wo.beEaten();
@@ -78,13 +79,22 @@ public class Creature extends WorldObject {
             dead = true;
             deadAtTick = id;
         }
-        inputs[I_HUNGER] += 0.00001f * brain.getEnergyConsumption(); //big brains cost to run
-        inputs[I_HUNGER] += 0.001f * Math.abs(outputs[O_SPEED]); //moving also costs energy
-        inputs[I_HUNGER] += 0.00001f * Math.abs(outputs[O_ROTATION]); //moving also costs energy
+//        float distance = outputs[O_SPEED] * MAX_SPEED;
+//        float rotation = (float) (outputs[O_ROTATION] * 2 * Math.PI);
 
-        moveInDirection(outputs[O_SPEED], outputs[O_ROTATION]);
+        float distance = outputs[O_SPEED];
+        float rotation = outputs[O_ROTATION];
+
+//        inputs[I_HUNGER] += 0.00001f * brain.getEnergyConsumption(); //big brains cost to run
+        inputs[I_HUNGER] += 0.001f;
+        inputs[I_HUNGER] += 0.001f * Math.abs(distance); //moving also costs energy
+        inputs[I_HUNGER] += 0.00001f * Math.abs(rotation); //moving also costs energy
+
+
+        totalDistanceTravelled += distance;
+        moveInDirection(distance, rotation);
         smellTriangle = null;
-        if(trail.size() > 50) {
+        if (trail.size() > 50) {
             trail.removeLast();
         }
         trail.addFirst(getPosition().copy());
@@ -102,6 +112,18 @@ public class Creature extends WorldObject {
 
     }
 
+    private Optional<PlantParticle> getClosestLeftPlant(List<PlantParticle> closePlants) {
+        return closePlants.stream().filter(this::smellLeft).sorted(this::distance).findFirst();
+    }
+
+    private Optional<PlantParticle> getClosestRightPlant(List<PlantParticle> closePlants) {
+        return closePlants.stream().filter(this::smellRight).sorted(this::distance).findFirst();
+    }
+
+    private int distance(PlantParticle plantParticle, PlantParticle plantParticle1) {
+        return (int) (plantParticle.getPosition().distanceTo(this.getPosition()) - plantParticle1.getPosition().distanceTo(this.getPosition()));
+    }
+
     public LinkedList<Position> getTrail() {
         return trail;
     }
@@ -116,8 +138,24 @@ public class Creature extends WorldObject {
 
     public float getFitness() {
 //        return getSurvivedTicks();
-        return eaten;
+
+
+//        float v = eaten * getSurvivedTicks() - totalDistanceTravelled;
+//
+//        if (isNaN(v) || eaten == 0 || totalDistanceTravelled < 1) {
+//            return 0;
+//        }
+//        return v;
+
 //        return (float) eaten / (float) getSurvivedTicks();
+//        return totalDistanceTravelled;
+
+
+        float v = eaten / totalDistanceTravelled;
+        if (isNaN(v) || eaten == 0 || totalDistanceTravelled < 1) {
+            return 0;
+        }
+        return eaten * v;
     }
 
     private boolean smellRight(PlantParticle plantParticle) {
