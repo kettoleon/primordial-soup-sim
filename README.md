@@ -1,13 +1,15 @@
 # Primordial soup simulator
 
 This is just my naive attempt at making neural network and genetic algorithms on my own, without having read much about the topic.
-The objective was to find problems to learn by experience. 
+The objective was to find problems to learn from experience. 
 
 It basically generates a genetically random initial population and puts them in the world with randomly placed food.
-Every time a creature eats one PlantParticle, another spawns randomly.
+Every time a creature eats one PlantParticle, another piece of food spawns randomly.
 The creature that has the highest fitness mates with the other 19 best creatures to generate the next generation offspring.
 Next's offspring gene pool is based on the best survivors of any generation, not just the latest.
 There is also some radiation to induce random mutation to the offspring.
+
+![screenshot](screenshot.png "Sample screenshot of an early stage")
 
 After each generation, a prev.genepool file is stored so that the simulation can be killed and automatically resumes from that generation.
 If you wish to start clean, just remove the file.
