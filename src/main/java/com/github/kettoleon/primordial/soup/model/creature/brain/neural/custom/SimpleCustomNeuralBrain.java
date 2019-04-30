@@ -3,9 +3,7 @@ package com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
 public class SimpleCustomNeuralBrain implements Brain {
 
@@ -15,6 +13,9 @@ public class SimpleCustomNeuralBrain implements Brain {
     // - Make the NN "compositable", i.e, one NN that decides which other NN to use next.
     //     This way we will not have one single big NN doing a lot of unnecessary processing.
     // - Improve the algorithm to make it more efficient
+
+    //TODO new thought: The genes can express not only the number of layers and neurons, but also the training results
+    // (the expected behaviour table)
 
     private List<NeuronLayer> neuronLayers = new ArrayList<>();
 
@@ -33,7 +34,7 @@ public class SimpleCustomNeuralBrain implements Brain {
         double[][] nextInputs = new double[][]{toDoubleArray(inputs)};
         for (NeuronLayer current : neuronLayers) {
 
-            nextInputs = NNMath.matrixApply(NNMath.matrixMultiply(nextInputs, current.weights), current.activationFunction);
+//            nextInputs = NNMath.matrixApply(NNMath.matrixMultiply(nextInputs, current.weights), current.activationFunction);
         }
 
         for (int i = 0; i < outputs.length; i++) {
@@ -68,55 +69,4 @@ public class SimpleCustomNeuralBrain implements Brain {
         return new SimpleCustomNeuralBrain(layers);
     }
 
-    public static class NeuronLayer {
-
-        public final Function<Double, Double> activationFunction, activationFunctionDerivative;
-
-        double[][] weights;
-
-        public NeuronLayer(double[][] weights) {
-            this.weights = weights;
-            activationFunction = NNMath::sigmoid;
-            activationFunctionDerivative = NNMath::sigmoidDerivative;
-        }
-
-        public NeuronLayer(int numberOfNeurons, int numberOfInputsPerNeuron) {
-            weights = new double[numberOfInputsPerNeuron][numberOfNeurons];
-
-            for (int i = 0; i < numberOfInputsPerNeuron; ++i) {
-                for (int j = 0; j < numberOfNeurons; ++j) {
-                    weights[i][j] = (2 * Math.random()) - 1; // shift the range from 0-1 to -1 to 1
-                }
-            }
-
-            activationFunction = NNMath::sigmoid;
-            activationFunctionDerivative = NNMath::sigmoidDerivative;
-        }
-
-        public void adjustWeights(double[][] adjustment) {
-            this.weights = NNMath.matrixAdd(weights, adjustment);
-        }
-
-        public NeuronLayer mutate(double chance) {
-            return new NeuronLayer(mutate(weights, chance));
-        }
-
-        private double[][] mutate(double[][] weights, double chance) {
-            double[][] copy = new double[weights.length][];
-            for (int i = 0; i < copy.length; i++) {
-                copy[i] = mutatew(weights[i], chance);
-            }
-            return copy;
-        }
-
-        private double[] mutatew(double[] weight, double chance) {
-            double[] doubles = Arrays.copyOf(weight, weight.length);
-            for (int i = 0; i < doubles.length; i++) {
-                if (Math.random() < chance) {
-                    doubles[i] = Math.random();
-                }
-            }
-            return doubles;
-        }
-    }
 }

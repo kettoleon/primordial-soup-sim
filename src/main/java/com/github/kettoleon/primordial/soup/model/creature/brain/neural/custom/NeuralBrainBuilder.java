@@ -28,7 +28,7 @@ public class NeuralBrainBuilder implements GeneticBuilder<Brain> {
 
             //layer,inputsPerNeuron,numberOfNeurons
             List<LayerWeightsBuilder> layers = new ArrayList<>();
-            List<SimpleCustomNeuralBrain.NeuronLayer> neuronLayers = new ArrayList<>();
+            List<NeuronLayer> neuronLayers = new ArrayList<>();
 
             layers.add(new LayerWeightsBuilder(creature.getInputsSize(), sqrSize));
             for (int i = 0; i < sqrSize - 2; i++) {
@@ -37,7 +37,7 @@ public class NeuralBrainBuilder implements GeneticBuilder<Brain> {
             layers.add(new LayerWeightsBuilder(sqrSize, creature.getOutputsSize()));
 
             for (LayerWeightsBuilder lwb : layers) {
-                neuronLayers.add(new SimpleCustomNeuralBrain.NeuronLayer(readWeights(dna, lwb.inputsSize, lwb.neurons)));
+                neuronLayers.add(new NeuronLayer(readWeights(dna, lwb.inputsSize, lwb.neurons)));
             }
 
             return new SimpleCustomNeuralBrain(neuronLayers);

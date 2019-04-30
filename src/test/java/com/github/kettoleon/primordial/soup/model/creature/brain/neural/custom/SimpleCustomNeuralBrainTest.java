@@ -1,6 +1,5 @@
 package com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom;
 
-import com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom.SimpleCustomNeuralBrain.NeuronLayer;
 import org.junit.Test;
 
 import java.util.ArrayList;
