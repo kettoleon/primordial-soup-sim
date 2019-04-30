@@ -105,9 +105,15 @@ public class NeuralNet {
 
 
         double[][][] layerDeltas = new double[layers.size()][][];
+        double[][] nextOutputs = outputs;
+        double[][] nextWeights = result;
         for (int d = layerDeltas.length - 1; d >= 0; d--) {
-            double[][] layerError = matrixSubtract(outputs, layerOutputs[d]); // 4x1
-            layerDeltas[d] = scalarMultiply(layerError, apply(outputLayer2, layers.get(d).activationFunctionDerivative)); // 4x1
+            double[][] layerError = matrixSubtract(nextOutputs, nextWeights); // 4x1
+            layerDeltas[d] = scalarMultiply(layerError, apply(layerOutputs[d], layers.get(d).activationFunctionDerivative)); // 4x1
+
+            nextOutputs = layerDeltas[d];
+            nextWeights = matrixTranspose(layers.get(d).weights);
+
         }
 
         double[][] nextInputs = inputs;

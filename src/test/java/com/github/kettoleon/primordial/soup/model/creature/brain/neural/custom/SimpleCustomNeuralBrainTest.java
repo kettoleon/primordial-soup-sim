@@ -1,5 +1,6 @@
 package com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class SimpleCustomNeuralBrainTest {
 
 
 //        while(true){
-        for(int c = 0; c < 10000; c++) {
+        for (int c = 0; c < 10000; c++) {
             SimpleCustomNeuralBrain best = pickBest(testSubjects);
 
             testSubjects.clear();
@@ -30,6 +31,37 @@ public class SimpleCustomNeuralBrainTest {
         }
 
 
+    }
+
+    @Test
+    public void neuralNet_trainsXOR() {
+
+        NeuralNet neuralNet = new NeuralNet(layersForXor(), 0.1);
+
+        neuralNet.train(inputsForXor(), outputsForXor(), 100000);
+
+        double[][] outputs = neuralNet.thinkAndTrain(inputsForXor(), outputsForXor());
+
+        System.out.println(ReflectionToStringBuilder.toString(outputs));
+
+    }
+
+    private double[][] outputsForXor() {
+        return new double[][]{
+                {0},
+                {1},
+                {1},
+                {0},
+        };
+    }
+
+    private double[][] inputsForXor() {
+        return new double[][]{
+                {0, 0},
+                {0, 1},
+                {1, 0},
+                {1, 1},
+        };
     }
 
     private SimpleCustomNeuralBrain pickBest(List<SimpleCustomNeuralBrain> testSubjects) {
@@ -62,11 +94,15 @@ public class SimpleCustomNeuralBrainTest {
     }
 
     private SimpleCustomNeuralBrain aBrainForXOR() {
-        return new SimpleCustomNeuralBrain(asList(
+        return new SimpleCustomNeuralBrain(layersForXor());
+    }
+
+    private List<NeuronLayer> layersForXor() {
+        return asList(
                 new NeuronLayer(3, 2),
                 new NeuronLayer(1, 3)
 
-        ));
+        );
     }
 
 }
