@@ -2,6 +2,9 @@ package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic;
 
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 
+/**
+ * Later on I discovered this is called genetic programming!
+ */
 public class AlgorithmicBrain implements Brain {
 
     private float[] memory;

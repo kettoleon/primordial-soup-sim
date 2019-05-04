@@ -56,4 +56,8 @@ public class DnaReader {
     public <T> T pickFromList(Set<T> list) {
         return Iterators.get(list.iterator(), nextInt(0, list.size()));
     }
+
+    public long nextLong() {
+        return (long) (nextFloat() * Long.MAX_VALUE);
+    }
 }
