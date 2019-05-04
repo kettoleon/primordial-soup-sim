@@ -3,6 +3,6 @@
 *.iml
 target/**
 
-prev.genepool
+prev.sd
 
 .attach_pid*

@@ -5,6 +5,7 @@ import com.github.kettoleon.primordial.soup.model.World;
 import com.github.kettoleon.primordial.soup.model.WorldObject;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import com.github.kettoleon.primordial.soup.model.genetics.Dna;
+import com.github.kettoleon.primordial.soup.model.genetics.Genome;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class Creature extends WorldObject {
     private Position startingPos;
     private LinkedList<Position> trail = new LinkedList<>();
     private float totalDistanceTravelled;
+    private Genome genome;
 
     //TODO Senses to read from world -> later stage
 
@@ -274,14 +276,6 @@ public class Creature extends WorldObject {
         this.brain = brain;
     }
 
-    public void setDna(Dna dna) {
-        this.dna = dna;
-    }
-
-    public Dna getDna() {
-        return dna;
-    }
-
     public int getInputsSize() {
         return inputs.length;
     }
@@ -296,5 +290,13 @@ public class Creature extends WorldObject {
 
     public long getSurvivedTicks() {
         return deadAtTick - firstTick;
+    }
+
+    public void setGenome(Genome genome) {
+        this.genome = genome;
+    }
+
+    public Genome getGenome() {
+        return genome;
     }
 }

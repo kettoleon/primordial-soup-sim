@@ -8,38 +8,45 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-public class DnaReader {
-    private final float[] genes;
+public class GeneReader {
+    private final double[] genes;
 
     private int pos;
 
-    public DnaReader(float[] genes) {
+    public GeneReader(double[] genes) {
         this.genes = genes;
     }
 
-    public boolean hasMoreGenes() {
-        return pos < genes.length;
+    public int remainingGenes() {
+        return genes.length - pos;
     }
 
-    public <T> Optional<T> next(Function<DnaReader, T> f) {
+    public boolean hasMoreGenes() {
+        return remainingGenes() > 0;
+    }
+
+    public <T> Optional<T> next(Function<GeneReader, T> f) {
         if (hasMoreGenes()) {
             return Optional.ofNullable(f.apply(this));
         }
         return Optional.empty();
     }
 
-    public float nextFloat() {
+    public double nextDouble() {
         return genes[pos++];
     }
 
+    public float nextFloat() {
+        return (float) nextDouble();
+    }
+
     public boolean nextBoolean() {
-        return nextFloat() > 0.5;
+        return nextDouble() > 0.5;
     }
 
     public int nextInt(int startInclusive, int endExclusive) {
-        return MathUtils.clamp((int) (startInclusive + nextFloat() * (endExclusive - startInclusive)), startInclusive, endExclusive);
+        return MathUtils.clamp((int) (startInclusive + nextDouble() * (endExclusive - startInclusive)), startInclusive, endExclusive);
     }
-
 
     public <T> T pickFromList(List<T> list) {
         return list.get(nextInt(0, list.size()));
@@ -49,15 +56,11 @@ public class DnaReader {
         return values[nextInt(0, values.length)];
     }
 
-    public int remainingGenes() {
-        return genes.length - pos;
-    }
-
     public <T> T pickFromList(Set<T> list) {
         return Iterators.get(list.iterator(), nextInt(0, list.size()));
     }
 
     public long nextLong() {
-        return (long) (nextFloat() * Long.MAX_VALUE);
+        return (long) (nextDouble() * Long.MAX_VALUE);
     }
 }

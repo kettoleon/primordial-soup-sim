@@ -2,15 +2,13 @@ package com.github.kettoleon.primordial.soup.model.creature.brain;
 
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.AlgorithmicBrainBuilder;
-import com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom.NeuralBrainBuilder;
-import com.github.kettoleon.primordial.soup.model.creature.brain.neural.encog.SimpleEncogBrainBuilder;
-import com.github.kettoleon.primordial.soup.model.genetics.DnaReader;
-import com.github.kettoleon.primordial.soup.model.genetics.GeneticBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeBasedBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.GeneReader;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class BrainBuilder implements GeneticBuilder<Brain> {
+public class BrainBuilder implements ChromosomeBasedBuilder<Brain> {
 
     private Creature creature;
 
@@ -20,14 +18,14 @@ public class BrainBuilder implements GeneticBuilder<Brain> {
     }
 
     @Override
-    public Brain build(DnaReader dna) {
-        if(dna.hasMoreGenes()) {
-            return dna.pickFromList(brainTypeBuilders()).build(dna);
+    public Brain build(GeneReader reader) {
+        if (reader.hasMoreGenes()) {
+            return reader.pickFromList(brainTypeBuilders()).build(reader);
         }
         return new NoBrain();
     }
 
-    private List<GeneticBuilder<Brain>> brainTypeBuilders() {
+    private List<ChromosomeBasedBuilder<Brain>> brainTypeBuilders() {
         return Arrays.asList(
 //                new SimpleEncogBrainBuilder(creature)
                 new AlgorithmicBrainBuilder(creature)

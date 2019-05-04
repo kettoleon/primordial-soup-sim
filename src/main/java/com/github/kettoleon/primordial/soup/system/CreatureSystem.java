@@ -5,13 +5,11 @@ import com.github.kettoleon.primordial.soup.model.Position;
 import com.github.kettoleon.primordial.soup.model.World;
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.CreatureBuilder;
-import com.github.kettoleon.primordial.soup.model.genetics.Dna;
-import com.github.kettoleon.primordial.soup.model.genetics.DnaUtils;
+import com.github.kettoleon.primordial.soup.model.genetics.Chromosome;
+import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeUtils;
+import com.github.kettoleon.primordial.soup.model.genetics.Genome;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -33,14 +31,16 @@ public class CreatureSystem implements SimulationSystem {
     private int generation = 0;
     private long generationTickStart = 0;
     private CreatureBuilder creatureBuilder = new CreatureBuilder();
+    private File simFile = new File("prev.sd");
+    ;
 
     @Override
     public void init(World world) {
 
-        loadGenePool();
+        loadSimulation();
         if (generation == 0) {
             for (int i = 0; i < INITIAL_POPULATION; i++) {
-                Dna dna = new Dna(INITIAL_GENES);
+                Genome dna = new Genome(INITIAL_GENES);
                 addNewCreature(0, world, dna);
             }
         } else {
@@ -98,51 +98,66 @@ public class CreatureSystem implements SimulationSystem {
         newGenePool.addAll(deadGenerationFittest);
         fittestGenePool = getFittest(newGenePool);
 
-        saveGenePool();
+        saveSimulation();
     }
 
-    private void loadGenePool() {
-        try {
-            FileInputStream fis = new FileInputStream("prev.genepool");
-            DataInputStream dis = new DataInputStream(fis);
+    public static class SimulationData implements Serializable {
+        private int generation;
+        private List<Genome> genePool;
 
-            generation = dis.readInt();
-            int poolSize = dis.readInt();
-            for (int i = 0; i < poolSize; i++) {
-                float[] genes = new float[dis.readInt()];
-                for (int j = 0; j < genes.length; j++) {
-                    genes[j] = dis.readFloat();
-                }
+        public SimulationData(int generation, List<Genome> genePool) {
 
-                Dna dna = new Dna(genes);
+            this.generation = generation;
+            this.genePool = genePool;
+        }
 
-                Creature build = creatureBuilder.build(dna.getNewReader());
-                build.setDna(dna);
-                fittestGenePool.add(build);
+        public int getGeneration() {
+            return generation;
+        }
 
+        public void setGeneration(int generation) {
+            this.generation = generation;
+        }
+
+        public List<Genome> getGenePool() {
+            return genePool;
+        }
+
+        public void setGenePool(List<Genome> genePool) {
+            this.genePool = genePool;
+        }
+    }
+
+    private void loadSimulation() {
+        if (simFile.exists()) {
+            try {
+
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(simFile));
+                SimulationData simData = (SimulationData) ois.readObject();
+
+                generation = simData.generation;
+                simData.genePool.stream().map(creatureBuilder::build).forEach(fittestGenePool::add);
+
+                ois.close();
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
+        }
+    }
 
+    private void saveSimulation() {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(simFile));
+            SimulationData simData = new SimulationData(generation, collectFittestGenes());
+            oos.writeObject(simData);
+            oos.close();
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
-    private void saveGenePool() {
-        try {
-            FileOutputStream fos = new FileOutputStream("prev.genepool");
-            DataOutputStream dos = new DataOutputStream(fos);
-
-            dos.writeInt(generation);
-            dos.writeInt(fittestGenePool.size());
-            for (Creature creature : fittestGenePool) {
-                float[] genes = creature.getDna().getGenes();
-                dos.writeInt(genes.length);
-                for (float f : genes) dos.writeFloat(f);
-            }
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+    private List<Genome> collectFittestGenes() {
+        return fittestGenePool.stream().map(Creature::getGenome).collect(toList());
     }
 
     private void repopulate(long id, World world) {
@@ -154,15 +169,17 @@ public class CreatureSystem implements SimulationSystem {
 //            float[][] parents = new float[2][];
 //            parents[0] = fittestGenePool.get(fgpp.get()).getDna().getGenes();
 //            parents[1] = fittestGenePool.get(fgpp.get()).getDna().getGenes();
-//            float[] offspring = DnaUtils.mutateWithoutGrowth(DnaUtils.breed(bp, parents), RADIATION);
-            float[] offspring = DnaUtils.mutateWithoutGrowth(fittestGenePool.get(fgpp.get()).getDna().getGenes(), RADIATION);
+//            float[] offspring = ChromosomeUtils.mutateWithoutGrowth(ChromosomeUtils.breed(bp, parents), RADIATION);
+            double[] offspring = ChromosomeUtils.mutateWithoutGrowth(fittestGenePool.get(fgpp.get()).getGenome().getChromosomes().get(0).getGenes(), RADIATION);
 
-            addNewCreature(id, world, new Dna(offspring));
+            Genome genome = new Genome();
+            genome.getChromosomes().add(new Chromosome(offspring));
+            addNewCreature(id, world, genome);
 
         }
         for (Creature c : fittestGenePool) {
-            addNewCreature(id, world, c.getDna());
-            addNewCreature(id, world, new Dna(INITIAL_GENES));
+            addNewCreature(id, world, c.getGenome());
+            addNewCreature(id, world, new Genome(INITIAL_GENES));
         }
     }
 
@@ -191,9 +208,9 @@ public class CreatureSystem implements SimulationSystem {
     }
 
 
-    private void addNewCreature(long id, World world, Dna dna) {
-        Creature creature = creatureBuilder.build(dna.getNewReader());
-        creature.setDna(dna);
+    private void addNewCreature(long id, World world, Genome genome) {
+        Creature creature = creatureBuilder.build(genome);
+        creature.setGenome(genome);
         creature.place(randomStartingPosition());
         creature.setFirstTick(id);
         creatures.add(creature);

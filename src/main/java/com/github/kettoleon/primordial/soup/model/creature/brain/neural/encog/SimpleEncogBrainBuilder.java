@@ -3,9 +3,8 @@ package com.github.kettoleon.primordial.soup.model.creature.brain.neural.encog;
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import com.github.kettoleon.primordial.soup.model.creature.brain.NoBrain;
-import com.github.kettoleon.primordial.soup.model.genetics.DnaReader;
-import com.github.kettoleon.primordial.soup.model.genetics.GeneticBuilder;
-import com.github.kettoleon.primordial.soup.util.MathUtils;
+import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeBasedBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.GeneReader;
 import org.encog.engine.network.activation.*;
 import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.basic.BasicMLDataSet;
@@ -19,7 +18,7 @@ import java.util.Random;
 
 import static com.github.kettoleon.primordial.soup.util.MathUtils.clamp;
 
-public class SimpleEncogBrainBuilder implements GeneticBuilder<Brain> {
+public class SimpleEncogBrainBuilder implements ChromosomeBasedBuilder<Brain> {
 
     private Creature creature;
 
@@ -29,26 +28,26 @@ public class SimpleEncogBrainBuilder implements GeneticBuilder<Brain> {
     }
 
     @Override
-    public Brain build(DnaReader dna) {
-        if (dna.hasMoreGenes()) {
+    public Brain build(GeneReader reader) {
+        if (reader.hasMoreGenes()) {
 
             try {
                 //TODO here it would be nice to have a chromosome for the network structure
                 //TODO and another chromosome for the training data
 
-                BasicNetwork network = createNetworkFromSeed(dna.nextLong());
+                BasicNetwork network = createNetworkFromSeed(reader.nextLong());
 
                 List<double[]> inputs = new ArrayList<>();
                 List<double[]> outputs = new ArrayList<>();
 
-                while (dna.remainingGenes() > creature.getInputsSize() + creature.getOutputsSize()) {
+                while (reader.remainingGenes() > creature.getInputsSize() + creature.getOutputsSize()) {
                     double[] rowInputs = new double[creature.getInputsSize()];
                     for (int i = 0; i < creature.getInputsSize(); i++) {
-                        rowInputs[i] = dna.nextFloat();
+                        rowInputs[i] = reader.nextFloat();
                     }
                     double[] rowOutputs = new double[creature.getOutputsSize()];
                     for (int i = 0; i < creature.getOutputsSize(); i++) {
-                        rowOutputs[i] = dna.nextFloat();
+                        rowOutputs[i] = reader.nextFloat();
                     }
                     inputs.add(rowInputs);
                     outputs.add(rowOutputs);

@@ -4,9 +4,9 @@ import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.CreatureBuilder;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import com.github.kettoleon.primordial.soup.model.creature.brain.NoBrain;
-import com.github.kettoleon.primordial.soup.model.genetics.Dna;
-import com.github.kettoleon.primordial.soup.model.genetics.DnaReader;
-import com.github.kettoleon.primordial.soup.model.genetics.GeneticBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeBasedBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.GeneReader;
+import com.github.kettoleon.primordial.soup.model.genetics.Genome;
 import com.github.kettoleon.primordial.soup.util.JavaCompilerUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
+public class AlgorithmicBrainBuilder implements ChromosomeBasedBuilder<Brain> {
 
 
     private final int inSize;
@@ -31,16 +31,16 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
     }
 
     @Override
-    public Brain build(DnaReader dna) {
-        if (dna.hasMoreGenes()) {
-            memSize = dna.nextInt(0, 16);
-            BrainAlgorithm brainAlgorithm = buildBrainAlgorithm(dna);
+    public Brain build(GeneReader reader) {
+        if (reader.hasMoreGenes()) {
+            memSize = reader.nextInt(0, 16);
+            BrainAlgorithm brainAlgorithm = buildBrainAlgorithm(reader);
             return new AlgorithmicBrain(new float[memSize], brainAlgorithm);
         }
         return new NoBrain();
     }
 
-    private BrainAlgorithm buildBrainAlgorithm(DnaReader dna) {
+    private BrainAlgorithm buildBrainAlgorithm(GeneReader dna) {
 
         List<Instruction> instructions = new ArrayList<>();
         Set<String> usedMemPositions = new HashSet<>();
@@ -49,7 +49,7 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
             Optional<String> dest = dna.next(this::pickMemDest);
             Optional<Operation> op = dna.next(this::pickOp);
             String op1 = "i[" + i + "]";
-            String op2 = dna.next(DnaReader::nextFloat).map(f -> f + "f").orElse("0f");
+            String op2 = dna.next(GeneReader::nextFloat).map(f -> f + "f").orElse("0f");
             if (dest.isPresent() && op.isPresent()) {
                 usedMemPositions.add(dest.get());
                 instructions.add(new Instruction(dest.get(), op.get(), op1, op2));
@@ -82,7 +82,7 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
         return compileBrainAlgorithm(instructions);
     }
 
-    private String[] pickMemOrLiteral(DnaReader dna, Set<String> usedMemPositions) {
+    private String[] pickMemOrLiteral(GeneReader dna, Set<String> usedMemPositions) {
 
         Optional<String> op1 = dna.next(d -> this.pickOneOp(d, usedMemPositions));
         Optional<String> op2 = dna.next(d -> this.pickOneOp(d, usedMemPositions));
@@ -140,22 +140,22 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
     }
 
 
-    private Operation pickOp(DnaReader dna) {
+    private Operation pickOp(GeneReader dna) {
         return dna.pickFromList(Operation.values());
     }
 
-    private String pickMemDest(DnaReader dna) {
+    private String pickMemDest(GeneReader dna) {
         int pos = dna.nextInt(0, memSize);
         return "m[" + pos + "]";
     }
 
-    private String pickOneOp(DnaReader dna, Set<String> mempos) {
-        Optional<Boolean> isPosition = dna.next(DnaReader::nextBoolean);
+    private String pickOneOp(GeneReader dna, Set<String> mempos) {
+        Optional<Boolean> isPosition = dna.next(GeneReader::nextBoolean);
         if (isPosition.isPresent()) {
             if (isPosition.get()) {
                 return dna.pickFromList(mempos);
             } else {
-                Optional<Float> literal = dna.next(DnaReader::nextFloat);
+                Optional<Float> literal = dna.next(GeneReader::nextFloat);
                 return literal.map(l -> l + "f").orElse(null);
             }
         }
@@ -203,7 +203,7 @@ public class AlgorithmicBrainBuilder implements GeneticBuilder<Brain> {
         //inputs: i touched something, i'm hungry
         //outputs: move left, move right
 
-        Creature wow = new CreatureBuilder().build(new Dna(32).getNewReader());
+        Creature wow = new CreatureBuilder().build(new Genome(32));
         System.out.println(wow.getBrain().getDescription());
     }
 

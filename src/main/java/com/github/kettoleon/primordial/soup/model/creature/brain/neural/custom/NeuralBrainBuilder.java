@@ -3,13 +3,13 @@ package com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom;
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import com.github.kettoleon.primordial.soup.model.creature.brain.NoBrain;
-import com.github.kettoleon.primordial.soup.model.genetics.DnaReader;
-import com.github.kettoleon.primordial.soup.model.genetics.GeneticBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeBasedBuilder;
+import com.github.kettoleon.primordial.soup.model.genetics.GeneReader;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NeuralBrainBuilder implements GeneticBuilder<Brain> {
+public class NeuralBrainBuilder implements ChromosomeBasedBuilder<Brain> {
 
     private static final int MAX_LAYERS = 10;
     private Creature creature;
@@ -20,9 +20,9 @@ public class NeuralBrainBuilder implements GeneticBuilder<Brain> {
     }
 
     @Override
-    public Brain build(DnaReader dna) {//TODO I'm sure there must be better ways to do that ^.^"
-        if (dna.hasMoreGenes()) {
-            int brainGenes = dna.remainingGenes();
+    public Brain build(GeneReader reader) {//TODO I'm sure there must be better ways to do that ^.^"
+        if (reader.hasMoreGenes()) {
+            int brainGenes = reader.remainingGenes();
             int sqrSize = computeSquareSize(brainGenes);
 
 
@@ -37,7 +37,7 @@ public class NeuralBrainBuilder implements GeneticBuilder<Brain> {
             layers.add(new LayerWeightsBuilder(sqrSize, creature.getOutputsSize()));
 
             for (LayerWeightsBuilder lwb : layers) {
-                neuronLayers.add(new NeuronLayer(readWeights(dna, lwb.inputsSize, lwb.neurons)));
+                neuronLayers.add(new NeuronLayer(readWeights(reader, lwb.inputsSize, lwb.neurons)));
             }
 
             return new SimpleCustomNeuralBrain(neuronLayers);
@@ -57,7 +57,7 @@ public class NeuralBrainBuilder implements GeneticBuilder<Brain> {
         return new NoBrain();
     }
 
-    private double[][] readWeights(DnaReader dna, int inputsSize, int neurons) {
+    private double[][] readWeights(GeneReader dna, int inputsSize, int neurons) {
         double[][] weights = new double[inputsSize][neurons];
         for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[i].length; j++) {
