@@ -1,7 +1,7 @@
 package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.custom.v1;
 
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
-import com.github.kettoleon.primordial.soup.model.creature.CreatureBuilder;
+import com.github.kettoleon.primordial.soup.model.creature.SimpleGeneticProgrammingCreatureBuilder;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import com.github.kettoleon.primordial.soup.model.creature.brain.NoBrain;
 import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeBasedBuilder;
@@ -57,7 +57,7 @@ public class AlgorithmicBrainBuilder implements ChromosomeBasedBuilder<Brain> {
         }
 
 
-        while (dna.remainingGenes() > 6 * outSize) {
+        while (dna.remainingGenes() > 7 * outSize) {
             Optional<String> dest = dna.next(this::pickMemDest);
             Optional<Operation> op = dna.next(this::pickOp);
             Optional<String[]> ops = dna.next(d -> pickMemOrLiteral(d, usedMemPositions));
@@ -150,9 +150,9 @@ public class AlgorithmicBrainBuilder implements ChromosomeBasedBuilder<Brain> {
     }
 
     private String pickOneOp(GeneReader dna, Set<String> mempos) {
-        Optional<Boolean> isPosition = dna.next(GeneReader::nextBoolean);
-        if (isPosition.isPresent()) {
-            if (isPosition.get()) {
+        if (dna.remainingGenes() > 2) {
+            boolean isPosition = dna.nextBoolean();
+            if (isPosition) {
                 return dna.pickFromList(mempos);
             } else {
                 Optional<Float> literal = dna.next(GeneReader::nextFloat);
@@ -203,7 +203,7 @@ public class AlgorithmicBrainBuilder implements ChromosomeBasedBuilder<Brain> {
         //inputs: i touched something, i'm hungry
         //outputs: move left, move right
 
-        Creature wow = new CreatureBuilder().build(new Genome(32));
+        Creature wow = new SimpleGeneticProgrammingCreatureBuilder().build(new Genome(32));
         System.out.println(wow.getBrain().getDescription());
     }
 

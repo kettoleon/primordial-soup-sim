@@ -4,22 +4,26 @@ import com.github.kettoleon.primordial.soup.SimulationSystem;
 import com.github.kettoleon.primordial.soup.model.Position;
 import com.github.kettoleon.primordial.soup.model.World;
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
-import com.github.kettoleon.primordial.soup.model.creature.CreatureBuilder;
+import com.github.kettoleon.primordial.soup.model.creature.CreatureBuilderFactory.BrainType;
 import com.github.kettoleon.primordial.soup.model.genetics.Chromosome;
 import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeUtils;
 import com.github.kettoleon.primordial.soup.model.genetics.Genome;
+import com.github.kettoleon.primordial.soup.model.genetics.GenomeBasedBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.github.kettoleon.primordial.soup.model.creature.CreatureBuilderFactory.aCreatureBuilderFor;
+import static com.github.kettoleon.primordial.soup.model.creature.CreatureBuilderFactory.aGenomeFor;
 import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 
 public class CreatureSystem implements SimulationSystem {
 
+    private static final BrainType BRAIN_TYPE = BrainType.SIMPLE_GP;
     private static final int INITIAL_POPULATION = 100;
     private static final int INITIAL_GENES = 128;
     private static final float RADIATION = 0.1f;
@@ -30,9 +34,8 @@ public class CreatureSystem implements SimulationSystem {
     private boolean allDead;
     private int generation = 0;
     private long generationTickStart = 0;
-    private CreatureBuilder creatureBuilder = new CreatureBuilder();
+    private GenomeBasedBuilder<Creature> creatureBuilder = aCreatureBuilderFor(BRAIN_TYPE);
     private File simFile = new File("prev.sd");
-    ;
 
     @Override
     public void init(World world) {
@@ -40,7 +43,7 @@ public class CreatureSystem implements SimulationSystem {
         loadSimulation();
         if (generation == 0) {
             for (int i = 0; i < INITIAL_POPULATION; i++) {
-                Genome dna = new Genome(INITIAL_GENES);
+                Genome dna = aGenomeFor(BRAIN_TYPE);
                 addNewCreature(0, world, dna);
             }
         } else {
@@ -162,6 +165,7 @@ public class CreatureSystem implements SimulationSystem {
 
     private void repopulate(long id, World world) {
 
+        //TODO use proper breeding interchanging chromosomes for complex brain types
         Supplier<Integer> fgpp = cuadraticProbability(fittestGenePool.size());
         Supplier<Integer> bp = cuadraticProbability(2);
         for (int i = 0; i < INITIAL_POPULATION; i++) {
@@ -179,7 +183,7 @@ public class CreatureSystem implements SimulationSystem {
         }
         for (Creature c : fittestGenePool) {
             addNewCreature(id, world, c.getGenome());
-            addNewCreature(id, world, new Genome(INITIAL_GENES));
+            addNewCreature(id, world, aGenomeFor(BRAIN_TYPE));
         }
     }
 
