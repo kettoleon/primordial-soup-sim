@@ -1,4 +1,4 @@
-package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic;
+package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.custom.v1;
 
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.CreatureBuilder;
@@ -175,7 +175,7 @@ public class AlgorithmicBrainBuilder implements ChromosomeBasedBuilder<Brain> {
 
         sb.append("public class ");
         sb.append(uniqueClassName);
-        sb.append(" implements com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.BrainAlgorithm {\n\n");
+        sb.append(" implements com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.custom.v1.BrainAlgorithm {\n\n");
 
         sb.append("\t public void process(float[] i, float[] m, float[] o){\n\n");
         sb.append(instructionsCode);

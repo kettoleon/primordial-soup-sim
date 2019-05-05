@@ -1,6 +1,8 @@
-package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic;
+package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.custom.v1;
 
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
+
+import static com.github.kettoleon.primordial.soup.util.MathUtils.flatten;
 
 /**
  * Later on I discovered this is called genetic programming!
@@ -17,9 +19,9 @@ public class AlgorithmicBrain implements Brain {
     }
 
     @Override
-    public void process(float[] inputs, float[] outputs) {
+    public void process(float[][] inputs, float[] outputs) {
 
-        brainAlgorithm.process(inputs, memory, outputs);
+        brainAlgorithm.process(flatten(inputs), memory, outputs);
 
     }
 

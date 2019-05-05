@@ -1,4 +1,4 @@
-package com.github.kettoleon.primordial.soup.model.creature.brain.neural.encog;
+package com.github.kettoleon.primordial.soup.model.creature.brain.neural.encog.simple;
 
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;

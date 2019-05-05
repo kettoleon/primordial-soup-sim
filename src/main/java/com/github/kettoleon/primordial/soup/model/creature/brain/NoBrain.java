@@ -2,7 +2,7 @@ package com.github.kettoleon.primordial.soup.model.creature.brain;
 
 public class NoBrain implements Brain {
     @Override
-    public void process(float[] inputs, float[] outputs) {
+    public void process(float[][] inputs, float[] outputs) {
 
     }
 

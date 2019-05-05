@@ -1,4 +1,4 @@
-package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic;
+package com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.custom.v1;
 
 import java.util.function.Function;
 

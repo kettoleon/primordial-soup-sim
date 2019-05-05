@@ -1,6 +1,7 @@
 package com.github.kettoleon.primordial.soup.model.creature.brain.neural.custom;
 
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
+import com.github.kettoleon.primordial.soup.util.MathUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +26,13 @@ public class SimpleCustomNeuralBrain implements Brain {
     }
 
     @Override
-    public void process(float[] inputs, float[] outputs) {
+    public void process(float[][] inputs, float[] outputs) {
 
 
         //Multiply inputs by the weights
         //Do activation/normalisation function
 
-        double[][] nextInputs = new double[][]{toDoubleArray(inputs)};
+        double[][] nextInputs = new double[][]{toDoubleArray(MathUtils.flatten(inputs))};
         for (NeuronLayer current : neuronLayers) {
 
 //            nextInputs = NNMath.matrixApply(NNMath.matrixMultiply(nextInputs, current.weights), current.activationFunction);

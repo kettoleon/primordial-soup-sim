@@ -1,7 +1,7 @@
 package com.github.kettoleon.primordial.soup.model.creature.brain;
 
 import com.github.kettoleon.primordial.soup.model.creature.Creature;
-import com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.AlgorithmicBrainBuilder;
+import com.github.kettoleon.primordial.soup.model.creature.brain.algorithmic.custom.v1.AlgorithmicBrainBuilder;
 import com.github.kettoleon.primordial.soup.model.genetics.ChromosomeBasedBuilder;
 import com.github.kettoleon.primordial.soup.model.genetics.GeneReader;
 

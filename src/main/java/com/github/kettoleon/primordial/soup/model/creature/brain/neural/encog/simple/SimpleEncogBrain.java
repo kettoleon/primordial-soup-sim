@@ -1,7 +1,9 @@
-package com.github.kettoleon.primordial.soup.model.creature.brain.neural.encog;
+package com.github.kettoleon.primordial.soup.model.creature.brain.neural.encog.simple;
 
 import com.github.kettoleon.primordial.soup.model.creature.brain.Brain;
 import org.encog.neural.networks.BasicNetwork;
+
+import static com.github.kettoleon.primordial.soup.util.MathUtils.flatten;
 
 public class SimpleEncogBrain implements Brain {
 
@@ -14,10 +16,10 @@ public class SimpleEncogBrain implements Brain {
     }
 
     @Override
-    public void process(float[] inputs, float[] outputs) {
+    public void process(float[][] inputs, float[] outputs) {
 
         double[] outs = new double[outputs.length];
-        network.compute(toDoubleArray(inputs), outs);
+        network.compute(toDoubleArray(flatten(inputs)), outs);
 
         for (int i = 0; i < outputs.length; i++) {
             outputs[i] = (float) outs[i];
