@@ -13,6 +13,10 @@ import java.util.LinkedList;
 
 public class SimulationPanel extends JPanel implements MouseMotionListener, MouseListener {
 
+    public static final Color BACKGROUND_COLOR = new Color(86, 180, 233);
+    public static final Color PLANTS_COLOR = new Color(0,158,115);
+    public static final Color DEAD_CREATURE_COLOR = Color.black;
+    public static final Color CREATURE_COLOR = new Color(213, 94, 0);
     private long tickId;
     private World world;
 
@@ -67,11 +71,11 @@ public class SimulationPanel extends JPanel implements MouseMotionListener, Mous
 
 
     private void renderWorld(Graphics2D graphics, int width, int height) {
-        graphics.setColor(new Color(17, 112, 134));
+        graphics.setColor(BACKGROUND_COLOR);
         graphics.fillRect(0, 0, width, height);
 
-        graphics.setColor(Color.green);
-        world.getPlantParticles().stream().filter(p -> !p.isEaten()).forEach(wo -> paintWorldObject(graphics, wo, 2));
+        graphics.setColor(PLANTS_COLOR);
+        world.getPlantParticles().stream().filter(p -> !p.isEaten()).forEach(wo -> paintWorldObject(graphics, wo, 4));
 
 //        graphics.setColor(Color.yellow);
 //        plants.stream().filter(p -> p.isEaten()).forEach(wo -> paintWorldObject(graphics, wo,1));
@@ -82,7 +86,7 @@ public class SimulationPanel extends JPanel implements MouseMotionListener, Mous
 //        graphics.setColor(Color.black);
 //        worldObjectStream.stream().filter(creature -> !creature.isDead()).forEach(wo -> paintText(graphics, wo.getPosition(), wo.hunger()));
 
-        graphics.setColor(Color.black);
+        graphics.setColor(DEAD_CREATURE_COLOR);
         world.getCreatures().stream().filter(creature -> creature.isDead()).forEach(wo -> paintWorldObject(graphics, wo, 2));
     }
 
@@ -97,7 +101,7 @@ public class SimulationPanel extends JPanel implements MouseMotionListener, Mous
 
     private void paintCreature(Graphics2D g, Creature wo) {
 
-        g.setColor(Color.red);
+        g.setColor(CREATURE_COLOR);
         int screenX = (int) (offsetX + wo.getPosition().getX());
         int screenY = (int) (offsetY + wo.getPosition().getY());
 
@@ -119,7 +123,7 @@ public class SimulationPanel extends JPanel implements MouseMotionListener, Mous
         for (int i = 0; i < tail.size() - 1; i++) {
             Position p1 = tail.get(i);
             Position p2 = tail.get(i + 1);
-            g.setColor(new Color(1, 0, 0, 0.8f - i * (0.75f / tail.size())));
+            g.setColor(new Color(213/255.0f, 94/255.0f, 0, 0.8f - i * (0.75f / tail.size())));
             g.drawLine((int) (offsetX + p1.getX()), (int) (offsetY + p1.getY()), (int) (offsetX + p2.getX()), (int) (offsetY + p2.getY()));
         }
     }

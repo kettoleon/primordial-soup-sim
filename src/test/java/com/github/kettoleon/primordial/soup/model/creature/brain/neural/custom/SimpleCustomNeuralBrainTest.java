@@ -89,7 +89,7 @@ public class SimpleCustomNeuralBrainTest {
 
     private double testIO(SimpleCustomNeuralBrain brain, int a, int b, int expected) {
         float[] outputs = {0};
-        brain.process(new float[]{a, b}, outputs);
+        brain.process(new float[][]{{a, b}}, outputs);
         return Math.abs(expected - outputs[0]);
     }
 
